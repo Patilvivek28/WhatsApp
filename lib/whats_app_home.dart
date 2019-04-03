@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,41 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
   final FirebaseAnalytics analytics;
   final FirebaseAnalyticsObserver observer;
   TabController _tabController;
+  String _message = '';
+
+  void setMessage(String message) {
+    setState(() {
+      _message = message;
+    });
+  }
+
+  Future<void> _testSetUserId() async {
+    await analytics.setUserId('8446474868');
+    setMessage('setUserId succeeded');
+  }
+
+  Future<void> _sendAnalyticsEvent() async {
+    await analytics.logEvent(
+      name: 'test_event',
+      parameters: <String, dynamic>{
+        'string': 'string',
+        'int': 42,
+        'long': 12345678910,
+        'double': 42.0,
+        'bool': true,
+      },
+    );
+    setMessage('logEvent succeeded');
+  }
+
+
+  Future<void> _testSetCurrentScreen() async {
+    await analytics.setCurrentScreen(
+      screenName: 'WhatsApp Home Analytics Demo',
+      screenClassOverride: 'AnalyticsDemo',
+    );
+    setMessage('setCurrentScreen succeeded');
+  }
 
   @override
   void initState() {
@@ -60,13 +97,20 @@ class _WhatsAppHomeState extends State<WhatsAppHome>
                 Icons.search,
                 color: Colors.white,
               ),
-              onPressed: null),
+              onPressed: () {
+                _sendAnalyticsEvent();
+                _testSetUserId();
+                setMessage('setUserId succeeded');
+              }),
           IconButton(
               icon: Icon(
                 Icons.more_vert,
                 color: Colors.white,
               ),
-              onPressed: null)
+              onPressed: () {
+                _testSetCurrentScreen();
+                setMessage('setCurrentScreen succeeded');
+              }),
         ],
       ),
       body: TabBarView(
